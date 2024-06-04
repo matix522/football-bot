@@ -31,3 +31,6 @@ services:
     command: ["-path", "/migrations", "-database",  "postgres://postgres:example@db:5432/footballbot?sslmode=disable", "up"]
     links: 
         - db
+  football-bot:
+    image: football-bot
+    build: ./

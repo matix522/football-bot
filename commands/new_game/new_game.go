@@ -1,20 +1,20 @@
-package commands
+package new_game
 
 import "github.com/bwmarrin/discordgo"
 
-var command = discordgo.ApplicationCommand{
+var Command = discordgo.ApplicationCommand{
 	Name:        "new_game",
 	Description: "Create new game",
 	Options: []*discordgo.ApplicationCommandOption{
 		{
 			Name:        "game_time",
-			Description: "Date and time in dd-MM-yyTHH:mm format",
+			Description: "Time of the game; Date and time in dd-MM-yyTHH:mm format",
 			Type:        discordgo.ApplicationCommandOptionString,
 			Required:    true,
 		},
 		{
 			Name:        "cancel_deadline",
-			Description: "Whether to prepend message's author",
+			Description: "Last chance to cancel the game. Date and time in dd-MM-yyTHH:mm format",
 			Type:        discordgo.ApplicationCommandOptionString,
 			Required:    true,
 		},

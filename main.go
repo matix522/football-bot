@@ -1,6 +1,9 @@
 package main
 
 import (
+	"bot/commands"
+	"bot/db"
+	"database/sql"
 	"fmt"
 	"log"
 	"os"
@@ -9,6 +12,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
 
 type optionMap = map[string]*discordgo.ApplicationCommandInteractionDataOption
@@ -50,36 +54,7 @@ func handleEcho(s *discordgo.Session, i *discordgo.InteractionCreate, opts optio
 		log.Panicf("could not respond to interaction: %s", err)
 	}
 }
-
-var base_commands = []*discordgo.ApplicationCommand{
-	{
-		Name:        "echo",
-		Description: "Say something through a bot",
-		Options: []*discordgo.ApplicationCommandOption{
-			{
-				Name:        "message",
-				Description: "Contents of the message",
-				Type:        discordgo.ApplicationCommandOptionString,
-				Required:    true,
-			},
-			{
-				Name:        "author",
-				Description: "Whether to prepend message's author",
-				Type:        discordgo.ApplicationCommandOptionBoolean,
-			},
-		},
-	},
-}
-
 func main() {
-	// Initialise and set a string s
-	// to 'Hello World'
-	s := "Hello World"
-
-	// Write out the string to the console
-	// Return the string for our later step.
-	fmt.Println(messageOutput(s))
-
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
@@ -89,8 +64,14 @@ func main() {
 	session, err := discordgo.New("Bot " + os.Getenv("DISORD_BOT_AUTH_TOKEN"))
 
 	if err != nil {
-		log.Fatal("Error connecting to Discord session %s", err)
+		log.Fatal("Error creating Discord session %s", err)
 		return
+	}
+
+	_, err = sql.Open("postgres", db.ConnectionString())
+
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	session.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -105,7 +86,7 @@ func main() {
 
 		handleEcho(s, i, parseOptions(data.Options))
 	})
-	_, err = session.ApplicationCommandBulkOverwrite("1244611273576939594", "837325346160246795", base_commands+commands.command)
+	_, err = session.ApplicationCommandBulkOverwrite("1244611273576939594", "837325346160246795", commands.Commands)
 
 	if err != nil {
 		log.Fatalf("could not register commands: %s", err)
@@ -130,8 +111,4 @@ func main() {
 	}
 	log.Fatal("Discord connected")
 
-}
-
-func messageOutput(s string) string {
-	return s
 }
